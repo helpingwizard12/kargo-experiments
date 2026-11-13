@@ -1,0 +1,24 @@
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Project
+metadata:
+  name: kargo-experiments
+---
+# Ring policy:
+#   demo     -> auto-promote as soon as new Freight appears
+#   partner  -> auto-promote once BOTH demo tenants verified it and it soaked there
+#   customer -> manual promotion only (a human clicks Promote), after soaking in BOTH partner tenants
+apiVersion: kargo.akuity.io/v1alpha1
+kind: ProjectConfig
+metadata:
+  name: kargo-experiments
+  namespace: kargo-experiments
+spec:
+  promotionPolicies:
+    - stageSelector:
+        matchLabels:
+          shopfront/ring: demo
+      autoPromotionEnabled: true
+    - stageSelector:
+        matchLabels:
+          shopfront/ring: partner
+      autoPromotionEnabled: true

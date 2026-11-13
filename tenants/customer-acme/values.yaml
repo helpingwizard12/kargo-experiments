@@ -1,0 +1,4 @@
+tenant:
+  name: customer-acme
+  ring: customer
+replicas: 1

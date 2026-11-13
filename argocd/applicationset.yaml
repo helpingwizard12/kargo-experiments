@@ -1,0 +1,53 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: kargo-experiments
+  namespace: argocd
+spec:
+  description: ShopFront tenants promoted by Kargo
+  sourceRepos:
+    - https://github.com/tanish120704/kargo-experiments.git
+  destinations:
+    - server: https://kubernetes.default.svc
+      namespace: kx-*
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+---
+# One Argo CD Application per tenant, discovered from tenants/*/values.yaml.
+# Each app tracks the tenant's rendered branch (rendered/<tenant>), which only Kargo writes to.
+# No auto-sync: Kargo's argocd-update step syncs the app to the exact commit it just promoted.
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kx-tenants
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/tanish120704/kargo-experiments.git
+        revision: main
+        files:
+          - path: tenants/*/values.yaml
+  template:
+    metadata:
+      name: kx-{{ .tenant.name }}
+      labels:
+        shopfront/ring: "{{ .tenant.ring }}"
+      annotations:
+        # Allows the Kargo Stage of the same name to sync this app.
+        kargo.akuity.io/authorized-stage: kargo-experiments:{{ .tenant.name }}
+    spec:
+      project: kargo-experiments
+      source:
+        repoURL: https://github.com/tanish120704/kargo-experiments.git
+        targetRevision: rendered/{{ .tenant.name }}
+        path: .
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: kx-{{ .tenant.name }}
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true

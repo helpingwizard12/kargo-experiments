@@ -1,0 +1,11 @@
+# Defaults. Overridden by product/release.yaml (versions) and tenants/<tenant>/values.yaml (tenant config).
+image:
+  repository: hashicorp/http-echo
+  tag: "1.0"
+replicas: 1
+tenant:
+  name: unset
+  ring: unset
+release:
+  name: unset
+  services: {}

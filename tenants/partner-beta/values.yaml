@@ -1,0 +1,4 @@
+tenant:
+  name: partner-beta
+  ring: partner
+replicas: 1

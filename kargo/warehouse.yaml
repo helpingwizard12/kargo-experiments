@@ -1,0 +1,18 @@
+# Freight = one commit on main that touched the product (charts, release versions, tenant config).
+# Kargo's own commits go to rendered/* branches, so they never create new Freight.
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Warehouse
+metadata:
+  name: shopfront
+  namespace: kargo-experiments
+spec:
+  interval: 1m
+  subscriptions:
+    - git:
+        repoURL: https://github.com/tanish120704/kargo-experiments.git
+        branch: main
+        commitSelectionStrategy: NewestFromBranch
+        includePaths:
+          - charts
+          - product
+          - tenants

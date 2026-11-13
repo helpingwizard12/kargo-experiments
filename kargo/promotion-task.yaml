@@ -1,0 +1,73 @@
+# Shared promotion logic for every tenant Stage:
+# render all 4 charts at the Freight's commit with that tenant's values,
+# commit the plain manifests to rendered/<tenant>, then sync the tenant's Argo CD app to that commit.
+apiVersion: kargo.akuity.io/v1alpha1
+kind: PromotionTask
+metadata:
+  name: render-tenant
+  namespace: kargo-experiments
+spec:
+  vars:
+    - name: tenant
+    - name: repoURL
+      value: https://github.com/tanish120704/kargo-experiments.git
+  steps:
+    - uses: git-clone
+      config:
+        repoURL: ${{ vars.repoURL }}
+        checkout:
+          - commit: ${{ commitFrom(vars.repoURL).ID }}
+            path: ./src
+          - branch: rendered/${{ vars.tenant }}
+            create: true
+            path: ./out
+    - uses: git-clear
+      config:
+        path: ./out
+    - uses: helm-template
+      as: catalog
+      config:
+        path: ./src/charts/catalog
+        releaseName: catalog
+        namespace: kx-${{ vars.tenant }}
+        valuesFiles: [./src/product/release.yaml, ./src/tenants/${{ vars.tenant }}/values.yaml]
+        outPath: ./out/catalog.yaml
+    - uses: helm-template
+      as: orders
+      config:
+        path: ./src/charts/orders
+        releaseName: orders
+        namespace: kx-${{ vars.tenant }}
+        valuesFiles: [./src/product/release.yaml, ./src/tenants/${{ vars.tenant }}/values.yaml]
+        outPath: ./out/orders.yaml
+    - uses: helm-template
+      as: payments
+      config:
+        path: ./src/charts/payments
+        releaseName: payments
+        namespace: kx-${{ vars.tenant }}
+        valuesFiles: [./src/product/release.yaml, ./src/tenants/${{ vars.tenant }}/values.yaml]
+        outPath: ./out/payments.yaml
+    - uses: helm-template
+      as: notifications
+      config:
+        path: ./src/charts/notifications
+        releaseName: notifications
+        namespace: kx-${{ vars.tenant }}
+        valuesFiles: [./src/product/release.yaml, ./src/tenants/${{ vars.tenant }}/values.yaml]
+        outPath: ./out/notifications.yaml
+    - uses: git-commit
+      as: commit
+      config:
+        path: ./out
+        message: "promote ${{ vars.tenant }} to main@${{ commitFrom(vars.repoURL).ID }}"
+    - uses: git-push
+      config:
+        path: ./out
+    - uses: argocd-update
+      config:
+        apps:
+          - name: kx-${{ vars.tenant }}
+            sources:
+              - repoURL: ${{ vars.repoURL }}
+                desiredRevision: ${{ outputs.commit.commit }}

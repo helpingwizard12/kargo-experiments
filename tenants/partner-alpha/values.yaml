@@ -1,0 +1,4 @@
+tenant:
+  name: partner-alpha
+  ring: partner
+replicas: 1

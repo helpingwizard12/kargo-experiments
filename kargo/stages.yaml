@@ -1,0 +1,183 @@
+# Ring 0: demo, ring 1: partner, ring 2: customer. One Stage per tenant.
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: demo-sandbox
+  namespace: kargo-experiments
+  labels:
+    shopfront/ring: demo
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: shopfront
+      sources:
+        direct: true
+  promotionTemplate:
+    spec:
+      steps:
+        - task:
+            name: render-tenant
+          vars:
+            - name: tenant
+              value: demo-sandbox
+  verification:
+    analysisTemplates:
+      - name: smoke-test
+    args:
+      - name: tenant
+        value: demo-sandbox
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: demo-sales
+  namespace: kargo-experiments
+  labels:
+    shopfront/ring: demo
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: shopfront
+      sources:
+        direct: true
+  promotionTemplate:
+    spec:
+      steps:
+        - task:
+            name: render-tenant
+          vars:
+            - name: tenant
+              value: demo-sales
+  verification:
+    analysisTemplates:
+      - name: smoke-test
+    args:
+      - name: tenant
+        value: demo-sales
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: partner-alpha
+  namespace: kargo-experiments
+  labels:
+    shopfront/ring: partner
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: shopfront
+      sources:
+        stages: [demo-sandbox, demo-sales]
+        availabilityStrategy: All   # must be verified in BOTH demo tenants
+        requiredSoakTime: 2m        # bake time in demo (short for the POC)
+  promotionTemplate:
+    spec:
+      steps:
+        - task:
+            name: render-tenant
+          vars:
+            - name: tenant
+              value: partner-alpha
+  verification:
+    analysisTemplates:
+      - name: smoke-test
+    args:
+      - name: tenant
+        value: partner-alpha
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: partner-beta
+  namespace: kargo-experiments
+  labels:
+    shopfront/ring: partner
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: shopfront
+      sources:
+        stages: [demo-sandbox, demo-sales]
+        availabilityStrategy: All   # must be verified in BOTH demo tenants
+        requiredSoakTime: 2m        # bake time in demo (short for the POC)
+  promotionTemplate:
+    spec:
+      steps:
+        - task:
+            name: render-tenant
+          vars:
+            - name: tenant
+              value: partner-beta
+  verification:
+    analysisTemplates:
+      - name: smoke-test
+    args:
+      - name: tenant
+        value: partner-beta
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: customer-acme
+  namespace: kargo-experiments
+  labels:
+    shopfront/ring: customer
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: shopfront
+      sources:
+        stages: [partner-alpha, partner-beta]
+        availabilityStrategy: All   # must be verified in BOTH partner tenants
+        requiredSoakTime: 5m        # bake time in partner (short for the POC)
+  promotionTemplate:
+    spec:
+      steps:
+        - task:
+            name: render-tenant
+          vars:
+            - name: tenant
+              value: customer-acme
+  verification:
+    analysisTemplates:
+      - name: smoke-test
+    args:
+      - name: tenant
+        value: customer-acme
+---
+apiVersion: kargo.akuity.io/v1alpha1
+kind: Stage
+metadata:
+  name: customer-globex
+  namespace: kargo-experiments
+  labels:
+    shopfront/ring: customer
+spec:
+  requestedFreight:
+    - origin:
+        kind: Warehouse
+        name: shopfront
+      sources:
+        stages: [partner-alpha, partner-beta]
+        availabilityStrategy: All   # must be verified in BOTH partner tenants
+        requiredSoakTime: 5m        # bake time in partner (short for the POC)
+  promotionTemplate:
+    spec:
+      steps:
+        - task:
+            name: render-tenant
+          vars:
+            - name: tenant
+              value: customer-globex
+  verification:
+    analysisTemplates:
+      - name: smoke-test
+    args:
+      - name: tenant
+        value: customer-globex

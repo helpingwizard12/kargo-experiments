@@ -1,0 +1,4 @@
+tenant:
+  name: demo-sandbox
+  ring: demo
+replicas: 1

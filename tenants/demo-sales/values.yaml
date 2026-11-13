@@ -1,0 +1,4 @@
+tenant:
+  name: demo-sales
+  ring: demo
+replicas: 1

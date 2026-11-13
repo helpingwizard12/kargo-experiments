@@ -1,0 +1,29 @@
+# Verification gate run after every promotion: all 4 services in the tenant must answer over HTTP.
+# Executed by Argo Rollouts as an AnalysisRun (Kargo creates it, Rollouts runs the Job).
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: smoke-test
+  namespace: kargo-experiments
+spec:
+  args:
+    - name: tenant
+  metrics:
+    - name: services-respond
+      provider:
+        job:
+          spec:
+            backoffLimit: 2
+            template:
+              spec:
+                restartPolicy: Never
+                containers:
+                  - name: smoke
+                    image: curlimages/curl:8.11.1
+                    command: [sh, -c]
+                    args:
+                      - |
+                        set -e
+                        for s in catalog orders payments notifications; do
+                          echo "$(curl -sf --retry 5 --retry-connrefused --max-time 5 http://$s.kx-{{args.tenant}}.svc/)"
+                        done
