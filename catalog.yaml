@@ -1,0 +1,60 @@
+---
+# Source: catalog/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: catalog
+  labels:
+    app.kubernetes.io/name: catalog
+    app.kubernetes.io/part-of: shopfront
+spec:
+  selector:
+    app.kubernetes.io/name: catalog
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+---
+# Source: catalog/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog
+  labels:
+    app.kubernetes.io/name: catalog
+    app.kubernetes.io/part-of: shopfront
+    app.kubernetes.io/version: "1.0.0"
+    shopfront/tenant: partner-alpha
+    shopfront/ring: partner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: catalog
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: catalog
+        app.kubernetes.io/version: "1.0.0"
+      annotations:
+        shopfront/release: "2026.11.0"
+    spec:
+      containers:
+        - name: app
+          image: "hashicorp/http-echo:1.0"
+          args:
+            - -listen=:8080
+            - -text=service=catalog version=1.0.0 release=2026.11.0 tenant=partner-alpha
+          ports:
+            - name: http
+              containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            requests:
+              cpu: 5m
+              memory: 8Mi
+            limits:
+              memory: 32Mi
