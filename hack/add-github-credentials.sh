@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
-# Stores a GitHub fine-grained PAT for this repo in the cluster:
+# Stores this repo's SSH deploy key in the cluster:
 #   - Kargo needs read/write (it pushes rendered/<tenant> branches)
 #   - Argo CD needs read
-# Create the PAT at https://github.com/settings/personal-access-tokens/new
-#   Repository access: Only select repositories -> kargo-experiments
-#   Permissions: Contents = Read and write
+# The key lives in .local/deploy-key (gitignored). To create a new one:
+#   ssh-keygen -t ed25519 -N '' -f .local/deploy-key
+#   gh repo deploy-key add .local/deploy-key.pub --repo helpingwizard12/kargo-experiments --allow-write --title kargo
 set -euo pipefail
-REPO=https://github.com/helpingwizard12/kargo-experiments.git
-read -rp "GitHub username: " GH_USER
-read -rsp "Fine-grained PAT (input hidden): " GH_PAT; echo
+cd "$(dirname "$0")/.."
+REPO=git@github.com:helpingwizard12/kargo-experiments.git
+KEY=.local/deploy-key
 
 kubectl create namespace kargo-experiments --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n kargo-experiments create secret generic github-creds \
-  --from-literal=repoURL="$REPO" --from-literal=username="$GH_USER" --from-literal=password="$GH_PAT" \
+  --from-literal=repoURL="$REPO" --from-file=sshPrivateKey="$KEY" \
   --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n kargo-experiments label secret github-creds kargo.akuity.io/cred-type=git --overwrite
 
 kubectl -n argocd create secret generic kargo-experiments-repository \
-  --from-literal=type=git --from-literal=url="$REPO" --from-literal=username="$GH_USER" --from-literal=password="$GH_PAT" \
+  --from-literal=type=git --from-literal=url="$REPO" --from-file=sshPrivateKey="$KEY" \
   --dry-run=client -o yaml | kubectl apply -f -
 kubectl -n argocd label secret kargo-experiments-repository argocd.argoproj.io/secret-type=repository --overwrite
-echo "Done: credentials stored for Kargo and Argo CD."
+echo "Done: deploy key stored for Kargo and Argo CD."

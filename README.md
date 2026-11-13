@@ -57,7 +57,7 @@ helm upgrade --install kargo oci://ghcr.io/akuity/kargo-charts/kargo --version 1
   --set api.adminAccount.passwordHash=... --set api.adminAccount.tokenSigningKey=... \
   --set api.service.type=NodePort --set api.service.nodePort=31444 --set externalWebhooksServer.enabled=false
 
-# repo credentials for Kargo (read/write) and Argo CD (read): prompts for a fine-grained PAT
+# repo credentials: stores the SSH deploy key (.local/deploy-key) for Kargo (read/write) and Argo CD (read)
 ./hack/add-github-credentials.sh
 
 # wire it up
