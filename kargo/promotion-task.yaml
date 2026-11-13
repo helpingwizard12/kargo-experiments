@@ -30,7 +30,9 @@ spec:
         path: ./src/charts/catalog
         releaseName: catalog
         namespace: kx-${{ vars.tenant }}
-        valuesFiles: [./src/product/release.yaml, ./src/tenants/${{ vars.tenant }}/values.yaml]
+        valuesFiles:
+          - ./src/product/release.yaml
+          - ./src/tenants/${{ vars.tenant }}/values.yaml
         outPath: ./out/catalog.yaml
     - uses: helm-template
       as: orders
@@ -38,7 +40,9 @@ spec:
         path: ./src/charts/orders
         releaseName: orders
         namespace: kx-${{ vars.tenant }}
-        valuesFiles: [./src/product/release.yaml, ./src/tenants/${{ vars.tenant }}/values.yaml]
+        valuesFiles:
+          - ./src/product/release.yaml
+          - ./src/tenants/${{ vars.tenant }}/values.yaml
         outPath: ./out/orders.yaml
     - uses: helm-template
       as: payments
@@ -46,7 +50,9 @@ spec:
         path: ./src/charts/payments
         releaseName: payments
         namespace: kx-${{ vars.tenant }}
-        valuesFiles: [./src/product/release.yaml, ./src/tenants/${{ vars.tenant }}/values.yaml]
+        valuesFiles:
+          - ./src/product/release.yaml
+          - ./src/tenants/${{ vars.tenant }}/values.yaml
         outPath: ./out/payments.yaml
     - uses: helm-template
       as: notifications
@@ -54,7 +60,9 @@ spec:
         path: ./src/charts/notifications
         releaseName: notifications
         namespace: kx-${{ vars.tenant }}
-        valuesFiles: [./src/product/release.yaml, ./src/tenants/${{ vars.tenant }}/values.yaml]
+        valuesFiles:
+          - ./src/product/release.yaml
+          - ./src/tenants/${{ vars.tenant }}/values.yaml
         outPath: ./out/notifications.yaml
     - uses: git-commit
       as: commit
