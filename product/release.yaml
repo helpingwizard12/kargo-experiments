@@ -1,12 +1,12 @@
 # The product release. Bumping anything here (or in charts/ or tenants/) creates new Freight in Kargo,
 # which then rolls through the rings: demo -> partner -> customer.
 release:
-  name: "2026.11.0"
+  name: "2026.11.1"
   services:
     catalog:
       version: "1.0.0"
     orders:
-      version: "1.0.0"
+      version: "1.1.0"
     payments:
       version: "1.0.0"
     notifications:
