@@ -6,7 +6,7 @@ metadata:
 spec:
   description: ShopFront tenants promoted by Kargo
   sourceRepos:
-    - https://github.com/tanish120704/kargo-experiments.git
+    - https://github.com/helpingwizard12/kargo-experiments.git
   destinations:
     - server: https://kubernetes.default.svc
       namespace: kx-*
@@ -27,7 +27,7 @@ spec:
   goTemplateOptions: ["missingkey=error"]
   generators:
     - git:
-        repoURL: https://github.com/tanish120704/kargo-experiments.git
+        repoURL: https://github.com/helpingwizard12/kargo-experiments.git
         revision: main
         files:
           - path: tenants/*/values.yaml
@@ -42,7 +42,7 @@ spec:
     spec:
       project: kargo-experiments
       source:
-        repoURL: https://github.com/tanish120704/kargo-experiments.git
+        repoURL: https://github.com/helpingwizard12/kargo-experiments.git
         targetRevision: rendered/{{ .tenant.name }}
         path: .
       destination:

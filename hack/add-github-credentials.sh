@@ -6,7 +6,7 @@
 #   Repository access: Only select repositories -> kargo-experiments
 #   Permissions: Contents = Read and write
 set -euo pipefail
-REPO=https://github.com/tanish120704/kargo-experiments.git
+REPO=https://github.com/helpingwizard12/kargo-experiments.git
 read -rp "GitHub username: " GH_USER
 read -rsp "Fine-grained PAT (input hidden): " GH_PAT; echo
 

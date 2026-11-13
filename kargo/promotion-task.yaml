@@ -10,7 +10,7 @@ spec:
   vars:
     - name: tenant
     - name: repoURL
-      value: https://github.com/tanish120704/kargo-experiments.git
+      value: https://github.com/helpingwizard12/kargo-experiments.git
   steps:
     - uses: git-clone
       config:

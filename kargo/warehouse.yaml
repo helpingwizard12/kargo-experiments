@@ -9,7 +9,7 @@ spec:
   interval: 1m
   subscriptions:
     - git:
-        repoURL: https://github.com/tanish120704/kargo-experiments.git
+        repoURL: https://github.com/helpingwizard12/kargo-experiments.git
         branch: main
         commitSelectionStrategy: NewestFromBranch
         includePaths:
