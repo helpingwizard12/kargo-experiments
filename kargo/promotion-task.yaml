@@ -78,4 +78,4 @@ spec:
           - name: kx-${{ vars.tenant }}
             sources:
               - repoURL: ${{ vars.repoURL }}
-                desiredRevision: ${{ outputs.commit.commit }}
+                desiredRevision: ${{ task.outputs.commit.commit }}
