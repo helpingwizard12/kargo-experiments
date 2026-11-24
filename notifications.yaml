@@ -37,14 +37,14 @@ spec:
         app.kubernetes.io/name: notifications
         app.kubernetes.io/version: "1.0.0"
       annotations:
-        shopfront/release: "2026.11.0"
+        shopfront/release: "2026.11.1"
     spec:
       containers:
         - name: app
           image: "hashicorp/http-echo:1.0"
           args:
             - -listen=:8080
-            - -text=service=notifications version=1.0.0 release=2026.11.0 tenant=demo-sandbox
+            - -text=service=notifications version=1.0.0 release=2026.11.1 tenant=demo-sandbox
           ports:
             - name: http
               containerPort: 8080
